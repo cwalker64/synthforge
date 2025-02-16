@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "synthforge"
+version = "0.0.1"
+description = "Program synthesis and test-based evaluation framework"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Wen Tao" }]
+
+[project.urls]
+Homepage = "https://github.com/cwalker64/synthforge"
