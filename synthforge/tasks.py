@@ -74,6 +74,8 @@ def load_suite(path: PathLike) -> TaskSuite:
 
     tasks: list[Task] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            continue
         try:
             payload = json.loads(line)
         except json.JSONDecodeError as exc:
