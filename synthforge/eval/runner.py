@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Iterable, Optional
 
 from synthforge.eval.sandbox import SandboxOutcome, run_in_sandbox
 from synthforge.types import Candidate, EvalResult, Task, TestOutcome
@@ -18,6 +18,24 @@ def evaluate(task: Task, candidate: Candidate, *, timeout: Optional[float] = Non
         timeout=limit,
     )
     return _to_result(task, candidate, sandbox)
+
+
+def evaluate_candidates(
+    task: Task,
+    candidates: Iterable[Candidate],
+    *,
+    timeout: Optional[float] = None,
+) -> list[EvalResult]:
+    """Evaluate several candidates against a task, in order."""
+    return [evaluate(task, c, timeout=timeout) for c in candidates]
+
+
+def best_result(results: Iterable[EvalResult]) -> Optional[EvalResult]:
+    """Pick the strongest result: solved first, then by pass rate."""
+    results = list(results)
+    if not results:
+        return None
+    return max(results, key=lambda r: (r.passed, r.pass_rate, -r.duration))
 
 
 def _to_result(task: Task, candidate: Candidate, sandbox: SandboxOutcome) -> EvalResult:
