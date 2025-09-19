@@ -13,6 +13,9 @@ from __future__ import annotations
 import re
 from typing import Callable
 
+from synthforge.synth.base import AbstractSynthesizer
+from synthforge.types import Candidate, Task
+
 _SIGNATURE_RE = re.compile(r"def\s+(?P<name>\w+)\s*\((?P<params>[^)]*)\)")
 
 
@@ -50,3 +53,54 @@ TEMPLATES: dict[str, Callable[[list[str]], str]] = {
     "length": lambda p: (f"len({p[0]})" if p else "len(args[0])"),
     "reverse": lambda p: (f"{p[0]}[::-1]" if p else "args[0][::-1]"),
 }
+
+# Prompt keywords that hint at a template. Order matters: earlier wins.
+_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
+    ("identity", ("unchanged", "identity", "itself", "as is", "as-is")),
+    ("sum", ("sum", "add", "total", "plus")),
+    ("product", ("product", "multiply", "times")),
+    ("difference", ("difference", "subtract", "minus")),
+    ("maximum", ("maximum", "largest", "greater", "max ")),
+    ("minimum", ("minimum", "smallest", "least", "min ")),
+    ("length", ("length", "count", "number of", "how many")),
+    ("reverse", ("reverse", "reversed", "backwards")),
+]
+
+
+def infer_kind(prompt: str) -> str | None:
+    """Guess a template name from the words in ``prompt``."""
+    text = prompt.lower()
+    for kind, needles in _KEYWORDS:
+        if any(needle in text for needle in needles):
+            return kind
+    return None
+
+
+class TemplateSynthesizer(AbstractSynthesizer):
+    name = "template"
+
+    def synthesize(self, task: Task, n: int = 1) -> list[Candidate]:
+        name, params = parse_signature(task.signature or "", task.entry_point)
+        ordered = self._candidate_kinds(task)
+        candidates: list[Candidate] = []
+        for kind in ordered:
+            template = TEMPLATES[kind]
+            source = render(name, params, template(params))
+            candidates.append(
+                Candidate(source, origin=self.name, metadata={"kind": kind})
+            )
+            if len(candidates) >= n:
+                break
+        return candidates or [Candidate(render(name, params, "None"), origin=self.name)]
+
+    def _candidate_kinds(self, task: Task) -> list[str]:
+        """Return template names to try, most-likely first."""
+        preferred = task.hints.get("kind") or infer_kind(task.prompt)
+        order: list[str] = []
+        if preferred in TEMPLATES:
+            order.append(preferred)
+        # Fill remaining slots with the rest of the library for variety.
+        for kind in TEMPLATES:
+            if kind not in order:
+                order.append(kind)
+        return order
