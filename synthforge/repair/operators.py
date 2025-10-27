@@ -37,67 +37,88 @@ _CMP_ALTS: dict[type[ast.cmpop], tuple[type[ast.cmpop], ...]] = {
 }
 
 
-def _eligible(tree: ast.AST, predicate: Callable[[ast.AST], bool]) -> list[ast.AST]:
-    return [node for node in ast.walk(tree) if predicate(node)]
+def _parse(source: str) -> ast.Module | None:
+    try:
+        return ast.parse(source)
+    except SyntaxError:
+        return None
 
 
-def _emit(base: ast.AST, index: int, predicate: Callable[[ast.AST], bool],
-          mutate: Callable[[ast.AST], None]) -> str:
-    tree = copy.deepcopy(base)
-    node = _eligible(tree, predicate)[index]
-    mutate(node)
+def _unparse(tree: ast.Module) -> str:
     ast.fix_missing_locations(tree)
     return ast.unparse(tree)
 
 
 def swap_binary_operators(source: str) -> list[str]:
     """Try replacing each arithmetic operator with a related one."""
-    try:
-        base = ast.parse(source)
-    except SyntaxError:
+    tree = _parse(source)
+    if tree is None:
         return []
-    pred = lambda n: isinstance(n, ast.BinOp) and type(n.op) in _BINOP_ALTS  # noqa: E731
+    count = len(_binops(tree))
     variants: list[str] = []
-    for idx, node in enumerate(_eligible(base, pred)):
-        for alt in _BINOP_ALTS[type(node.op)]:  # type: ignore[index]
-            variants.append(_emit(base, idx, pred, lambda n, a=alt: setattr(n, "op", a())))
+    for idx in range(count):
+        node = _binops(tree)[idx]
+        for alt in _BINOP_ALTS[type(node.op)]:
+            clone = copy.deepcopy(tree)
+            _binops(clone)[idx].op = alt()
+            variants.append(_unparse(clone))
     return variants
 
 
 def flip_comparisons(source: str) -> list[str]:
     """Try replacing each single comparison operator with a related one."""
-    try:
-        base = ast.parse(source)
-    except SyntaxError:
+    tree = _parse(source)
+    if tree is None:
         return []
-    pred = lambda n: (  # noqa: E731
-        isinstance(n, ast.Compare) and len(n.ops) == 1 and type(n.ops[0]) in _CMP_ALTS
-    )
+    count = len(_compares(tree))
     variants: list[str] = []
-    for idx, node in enumerate(_eligible(base, pred)):
-        for alt in _CMP_ALTS[type(node.ops[0])]:  # type: ignore[index]
-            variants.append(
-                _emit(base, idx, pred, lambda n, a=alt: n.ops.__setitem__(0, a()))
-            )
+    for idx in range(count):
+        node = _compares(tree)[idx]
+        for alt in _CMP_ALTS[type(node.ops[0])]:
+            clone = copy.deepcopy(tree)
+            _compares(clone)[idx].ops[0] = alt()
+            variants.append(_unparse(clone))
     return variants
 
 
 def tweak_int_constants(source: str) -> list[str]:
     """Try nudging each integer literal by plus or minus one (off-by-one fixes)."""
-    try:
-        base = ast.parse(source)
-    except SyntaxError:
+    tree = _parse(source)
+    if tree is None:
         return []
-    pred = lambda n: (  # noqa: E731
-        isinstance(n, ast.Constant) and isinstance(n.value, int) and not isinstance(n.value, bool)
-    )
+    count = len(_int_constants(tree))
     variants: list[str] = []
-    for idx, _ in enumerate(_eligible(base, pred)):
+    for idx in range(count):
         for delta in (1, -1):
-            variants.append(
-                _emit(base, idx, pred, lambda n, d=delta: setattr(n, "value", n.value + d))
-            )
+            clone = copy.deepcopy(tree)
+            target = _int_constants(clone)[idx]
+            current = target.value
+            if isinstance(current, int):
+                target.value = current + delta
+                variants.append(_unparse(clone))
     return variants
+
+
+def _binops(tree: ast.AST) -> list[ast.BinOp]:
+    return [n for n in ast.walk(tree) if isinstance(n, ast.BinOp) and type(n.op) in _BINOP_ALTS]
+
+
+def _compares(tree: ast.AST) -> list[ast.Compare]:
+    return [
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Compare) and len(n.ops) == 1 and type(n.ops[0]) in _CMP_ALTS
+    ]
+
+
+def _int_constants(tree: ast.AST) -> list[ast.Constant]:
+    return [
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Constant)
+        and isinstance(n.value, int)
+        and not isinstance(n.value, bool)
+    ]
 
 
 OPERATORS: list[RepairOperator] = [
