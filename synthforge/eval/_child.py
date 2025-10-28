@@ -14,6 +14,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import sys
 import time
 from typing import Any
@@ -65,11 +66,11 @@ def _fail(index: int, error: str) -> dict[str, Any]:
 
 
 def main() -> int:
-    real_stdout = sys.__stdout__
     payload = json.loads(sys.stdin.read())
     result = _run(payload)
-    real_stdout.write(json.dumps(result))
-    real_stdout.flush()
+    # Write at the file-descriptor level so candidate code that rebinds
+    # ``sys.stdout`` cannot corrupt the result document.
+    os.write(1, json.dumps(result).encode("utf-8"))
     return 0
 
 
