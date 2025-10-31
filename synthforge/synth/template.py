@@ -44,14 +44,14 @@ def render(name: str, params: list[str], body: str) -> str:
 
 # Each template turns the parsed parameter list into a return expression.
 TEMPLATES: dict[str, Callable[[list[str]], str]] = {
-    "identity": lambda p: (p[0] if p else "args[0]"),
-    "sum": lambda p: (" + ".join(p) if p else "sum(args)"),
-    "product": lambda p: (" * ".join(p) if p else "__import__('math').prod(args)"),
-    "difference": lambda p: (" - ".join(p[:2]) if len(p) >= 2 else "args[0] - args[1]"),
-    "maximum": lambda p: (f"max({', '.join(p)})" if p else "max(args)"),
-    "minimum": lambda p: (f"min({', '.join(p)})" if p else "min(args)"),
-    "length": lambda p: (f"len({p[0]})" if p else "len(args[0])"),
-    "reverse": lambda p: (f"{p[0]}[::-1]" if p else "args[0][::-1]"),
+    "identity": lambda p: p[0] if p else "args[0]",
+    "sum": lambda p: " + ".join(p) if p else "sum(args)",
+    "product": lambda p: " * ".join(p) if p else "__import__('math').prod(args)",
+    "difference": lambda p: " - ".join(p[:2]) if len(p) >= 2 else "args[0] - args[1]",
+    "maximum": lambda p: f"max({', '.join(p)})" if p else "max(args)",
+    "minimum": lambda p: f"min({', '.join(p)})" if p else "min(args)",
+    "length": lambda p: f"len({p[0]})" if p else "len(args[0])",
+    "reverse": lambda p: f"{p[0]}[::-1]" if p else "args[0][::-1]",
 }
 
 # Prompt keywords that hint at a template. Order matters: earlier wins.
@@ -86,9 +86,7 @@ class TemplateSynthesizer(AbstractSynthesizer):
         for kind in ordered:
             template = TEMPLATES[kind]
             source = render(name, params, template(params))
-            candidates.append(
-                Candidate(source, origin=self.name, metadata={"kind": kind})
-            )
+            candidates.append(Candidate(source, origin=self.name, metadata={"kind": kind}))
             if len(candidates) >= n:
                 break
         return candidates or [Candidate(render(name, params, "None"), origin=self.name)]

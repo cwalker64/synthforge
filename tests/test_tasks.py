@@ -42,9 +42,7 @@ def test_task_from_dict_missing_field() -> None:
 
 def test_task_from_dict_empty_tests() -> None:
     with pytest.raises(TaskError):
-        task_from_dict(
-            {"task_id": "x", "prompt": "p", "entry_point": "f", "tests": []}
-        )
+        task_from_dict({"task_id": "x", "prompt": "p", "entry_point": "f", "tests": []})
 
 
 def test_load_suite_from_jsonl(tmp_path) -> None:
@@ -63,4 +61,3 @@ def test_load_suite_rejects_empty(tmp_path) -> None:
     path.write_text("", encoding="utf-8")
     with pytest.raises(SuiteLoadError):
         load_suite(path)
-
