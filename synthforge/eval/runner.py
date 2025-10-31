@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 from synthforge.eval.sandbox import SandboxOutcome, run_in_sandbox
 from synthforge.types import Candidate, EvalResult, Task, TestOutcome
@@ -17,7 +17,7 @@ _HARNESS_PREAMBLE = (
 )
 
 
-def evaluate(task: Task, candidate: Candidate, *, timeout: Optional[float] = None) -> EvalResult:
+def evaluate(task: Task, candidate: Candidate, *, timeout: float | None = None) -> EvalResult:
     """Run ``candidate`` against every test in ``task`` and score it."""
     limit = task.timeout if timeout is None else timeout
     setup = f"{_HARNESS_PREAMBLE}{task.setup}" if task.setup else _HARNESS_PREAMBLE
@@ -34,13 +34,13 @@ def evaluate_candidates(
     task: Task,
     candidates: Iterable[Candidate],
     *,
-    timeout: Optional[float] = None,
+    timeout: float | None = None,
 ) -> list[EvalResult]:
     """Evaluate several candidates against a task, in order."""
     return [evaluate(task, c, timeout=timeout) for c in candidates]
 
 
-def best_result(results: Iterable[EvalResult]) -> Optional[EvalResult]:
+def best_result(results: Iterable[EvalResult]) -> EvalResult | None:
     """Pick the strongest result: solved first, then by pass rate."""
     results = list(results)
     if not results:

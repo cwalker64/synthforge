@@ -9,7 +9,7 @@ Candidates come from an explicit bank keyed by ``task_id``, falling back to a
 
 from __future__ import annotations
 
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from synthforge.synth.base import AbstractSynthesizer
 from synthforge.types import Candidate, Task
@@ -19,9 +19,7 @@ class FixtureSynthesizer(AbstractSynthesizer):
     name = "fixture"
 
     def __init__(self, bank: Mapping[str, Sequence[str]] | None = None) -> None:
-        self._bank: dict[str, list[str]] = {
-            key: list(value) for key, value in (bank or {}).items()
-        }
+        self._bank: dict[str, list[str]] = {key: list(value) for key, value in (bank or {}).items()}
 
     def add(self, task_id: str, sources: Sequence[str]) -> None:
         """Register (or extend) the candidate list for a task."""
