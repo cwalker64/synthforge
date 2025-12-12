@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from typing import Any
 
 from synthforge.types import EvalResult, RunReport
@@ -52,4 +53,17 @@ def report_to_dict(report: RunReport) -> dict[str, Any]:
 def render_json(report: RunReport, *, indent: int | None = 2) -> str:
     """Render a run report as a JSON document."""
     return json.dumps(report_to_dict(report), indent=indent)
+
+
+def render_markdown(reports: Sequence[RunReport]) -> str:
+    """Render a table of run reports as GitHub-flavoured Markdown."""
+    header = "| task | status | tests | repairs |\n|------|--------|-------|---------|"
+    rows = []
+    for report in reports:
+        best = report.best
+        tests = f"{best.num_passed}/{best.num_tests}" if best is not None else "-"
+        status = "pass" if report.solved else "fail"
+        rows.append(f"| {report.task_id} | {status} | {tests} | {len(report.repairs)} |")
+    return "\n".join([header, *rows])
+
 
