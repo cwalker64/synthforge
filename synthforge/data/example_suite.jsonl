@@ -1,0 +1,6 @@
+{"task_id": "add", "prompt": "Return the sum of a and b.", "entry_point": "add", "signature": "def add(a, b):", "tests": ["assert add(2, 3) == 5", "assert add(-1, 1) == 0", "assert add(0, 0) == 0"]}
+{"task_id": "multiply", "prompt": "Return the product of x and y.", "entry_point": "multiply", "signature": "def multiply(x, y):", "tests": ["assert multiply(2, 3) == 6", "assert multiply(4, 0) == 0", "assert multiply(-2, 5) == -10"]}
+{"task_id": "maximum", "prompt": "Return the maximum of a and b.", "entry_point": "maximum", "signature": "def maximum(a, b):", "tests": ["assert maximum(3, 5) == 5", "assert maximum(9, 2) == 9", "assert maximum(7, 7) == 7"]}
+{"task_id": "reverse_string", "prompt": "Return the string reversed.", "entry_point": "reverse_string", "signature": "def reverse_string(s):", "tests": ["assert reverse_string(\"abc\") == \"cba\"", "assert reverse_string(\"\") == \"\"", "assert reverse_string(\"x\") == \"x\""]}
+{"task_id": "list_length", "prompt": "Return the number of items in xs.", "entry_point": "list_length", "signature": "def list_length(xs):", "tests": ["assert list_length([1, 2, 3]) == 3", "assert list_length([]) == 0"]}
+{"task_id": "identity", "prompt": "Return the value unchanged.", "entry_point": "identity", "signature": "def identity(x):", "tests": ["assert identity(7) == 7", "assert identity(\"a\") == \"a\""]}
