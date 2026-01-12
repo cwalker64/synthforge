@@ -11,7 +11,7 @@ from collections.abc import Sequence
 
 from synthforge.config import RunConfig, load_config
 from synthforge.loop import LoopConfig, solve_task
-from synthforge.report import render_text
+from synthforge.report import render_json, render_markdown, render_text
 from synthforge.synth.registry import get_synthesizer
 from synthforge.tasks import example_suite_path, load_suite
 from synthforge.version import __version__
@@ -29,6 +29,13 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--repair-budget", type=int, default=3, help="max repair rounds")
     run.add_argument("--timeout", type=float, default=5.0, help="per-test timeout (s)")
     run.add_argument("--config", help="config file (JSON or key: value)")
+    run.add_argument(
+        "-f",
+        "--format",
+        choices=("text", "json", "markdown"),
+        default="text",
+        help="output format",
+    )
     run.set_defaults(func=_cmd_run)
 
     return parser
@@ -58,10 +65,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
         timeout=config.timeout,
     )
 
-    for task in suite:
-        report = solve_task(task, synthesizer, config=loop_config)
-        print(render_text(report))
+    reports = [solve_task(task, synthesizer, config=loop_config) for task in suite]
+    print(_render(reports, args.format))
     return 0
+
+
+def _render(reports: list, fmt: str) -> str:
+    if fmt == "markdown":
+        return render_markdown(reports)
+    if fmt == "json":
+        return "[\n" + ",\n".join(render_json(r, indent=2) for r in reports) + "\n]"
+    return "\n".join(render_text(r) for r in reports)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
