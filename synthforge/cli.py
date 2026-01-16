@@ -67,7 +67,10 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     reports = [solve_task(task, synthesizer, config=loop_config) for task in suite]
     print(_render(reports, args.format))
-    return 0
+
+    solved = sum(1 for r in reports if r.solved)
+    # Non-zero exit if any task went unsolved, so `run` doubles as a gate in CI.
+    return 0 if solved == len(reports) else 1
 
 
 def _render(reports: list, fmt: str) -> str:
