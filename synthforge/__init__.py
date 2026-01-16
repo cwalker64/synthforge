@@ -1,7 +1,10 @@
 """synthforge: program synthesis and test-based evaluation."""
 
+from synthforge.config import RunConfig
 from synthforge.errors import SynthForgeError
-from synthforge.tasks import TaskSuite
+from synthforge.eval.runner import evaluate
+from synthforge.loop import LoopConfig, solve_task
+from synthforge.tasks import TaskSuite, load_suite
 from synthforge.types import (
     Candidate,
     EvalResult,
@@ -21,5 +24,10 @@ __all__ = [
     "RepairStep",
     "RunReport",
     "TaskSuite",
+    "load_suite",
+    "evaluate",
+    "solve_task",
+    "LoopConfig",
+    "RunConfig",
     "SynthForgeError",
 ]
