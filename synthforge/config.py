@@ -102,4 +102,3 @@ def _coerce(value: str) -> Any:
     if lowered in {"true", "false"}:
         return lowered == "true"
     return value.strip("'\"")
-

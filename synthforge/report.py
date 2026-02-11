@@ -65,5 +65,3 @@ def render_markdown(reports: Sequence[RunReport]) -> str:
         status = "pass" if report.solved else "fail"
         rows.append(f"| {report.task_id} | {status} | {tests} | {len(report.repairs)} |")
     return "\n".join([header, *rows])
-
-
