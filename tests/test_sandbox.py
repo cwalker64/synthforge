@@ -46,3 +46,12 @@ def test_timeout_is_reported() -> None:
     )
     assert result.timed_out is True
     assert result.outcomes[0]["passed"] is False
+
+
+def test_reliability_guard_blocks_file_removal() -> None:
+    # os.remove is disabled inside the sandbox, so calling it raises and the
+    # test that relies on it is reported as failed rather than deleting a file.
+    source = "import os\n\ndef wipe(path):\n    os.remove(path)\n    return True\n"
+    result = run_in_sandbox(source, ["assert wipe('/tmp/whatever') is True"])
+    assert result.outcomes[0]["passed"] is False
+
