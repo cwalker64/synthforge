@@ -23,6 +23,12 @@ def pass_at_k(num_samples: int, num_correct: int, k: int) -> float:
         raise ValueError("num_samples and num_correct must be non-negative")
     if c > n:
         raise ValueError("num_correct cannot exceed num_samples")
+    if k < 1:
+        raise ValueError("k must be >= 1")
+    if k > n:
+        # Sampling more than we generated is undefined for the estimator; the
+        # best honest answer is the observed proportion of correct samples.
+        return 1.0 if c == n else c / n if n else 0.0
     if n - c < k:
         return 1.0
     prod = 1.0
