@@ -81,7 +81,10 @@ def load_suite(path: PathLike) -> TaskSuite:
             payload = json.loads(line)
         except json.JSONDecodeError as exc:
             raise SuiteLoadError(f"{path}:{lineno}: invalid JSON: {exc}") from exc
-        tasks.append(task_from_dict(payload))
+        try:
+            tasks.append(task_from_dict(payload))
+        except TaskError as exc:
+            raise SuiteLoadError(f"{path}:{lineno}: {exc}") from exc
     if not tasks:
         raise SuiteLoadError(f"{path}: no tasks found")
     return TaskSuite(tasks)
