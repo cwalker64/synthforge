@@ -58,4 +58,3 @@ def test_timeout_marks_result_failed() -> None:
     result = evaluate(task, Candidate("def spin():\n    while True:\n        pass\n"))
     assert result.timed_out
     assert not result.passed
-

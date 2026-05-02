@@ -50,4 +50,3 @@ def test_mean_pass_at_k_averages_tasks() -> None:
 
 def test_mean_pass_at_k_empty() -> None:
     assert mean_pass_at_k([], 1) == 0.0
-

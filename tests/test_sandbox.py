@@ -54,4 +54,3 @@ def test_reliability_guard_blocks_file_removal() -> None:
     source = "import os\n\ndef wipe(path):\n    os.remove(path)\n    return True\n"
     result = run_in_sandbox(source, ["assert wipe('/tmp/whatever') is True"])
     assert result.outcomes[0]["passed"] is False
-
