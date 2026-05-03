@@ -29,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _add_run_parser(sub: argparse._SubParsersAction) -> None:
+def _add_run_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     run = sub.add_parser("run", help="run synth -> eval -> repair over a task suite")
     run.add_argument("suite", nargs="?", help="JSONL suite path (default: bundled example)")
     run.add_argument("-s", "--synthesizer", default="template", help="synthesizer name")
@@ -47,7 +47,7 @@ def _add_run_parser(sub: argparse._SubParsersAction) -> None:
     run.set_defaults(func=_cmd_run)
 
 
-def _add_synths_parser(sub: argparse._SubParsersAction) -> None:
+def _add_synths_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     synths = sub.add_parser("synths", help="list available synthesizers")
     synths.set_defaults(func=_cmd_synths)
 
