@@ -1,5 +1,7 @@
 """Tests for the template synthesizer."""
 
+from __future__ import annotations
+
 from synthforge.eval.runner import evaluate
 from synthforge.synth.template import TemplateSynthesizer, infer_kind, parse_signature
 from synthforge.types import Candidate, Task

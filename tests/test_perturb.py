@@ -1,7 +1,9 @@
-"""Tests for the mutation synthesizer."""
+"""Tests for the perturbation synthesizer."""
+
+from __future__ import annotations
 
 from synthforge.eval.runner import evaluate
-from synthforge.synth.mutate import MutationSynthesizer
+from synthforge.synth.perturb import PerturbSynthesizer
 from synthforge.types import Task
 
 
@@ -17,17 +19,17 @@ def _task(seed: str | None = None) -> Task:
 
 
 def test_no_seed_yields_nothing() -> None:
-    assert MutationSynthesizer().synthesize(_task()) == []
+    assert PerturbSynthesizer().synthesize(_task()) == []
 
 
 def test_seed_is_first_candidate() -> None:
     seed = "def add(a, b):\n    return a - b\n"
-    candidates = MutationSynthesizer().synthesize(_task(seed), n=5)
+    candidates = PerturbSynthesizer().synthesize(_task(seed), n=5)
     assert candidates[0].source == seed
-    assert candidates[0].metadata["mutation"] == "seed"
+    assert candidates[0].metadata["perturbation"] == "seed"
 
 
-def test_mutations_include_a_fix() -> None:
+def test_perturbations_include_a_fix() -> None:
     seed = "def add(a, b):\n    return a - b\n"
-    candidates = MutationSynthesizer().synthesize(_task(seed), n=20)
+    candidates = PerturbSynthesizer().synthesize(_task(seed), n=20)
     assert any(evaluate(_task(seed), c).passed for c in candidates)
