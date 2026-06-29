@@ -12,7 +12,7 @@ from typing import Callable
 from synthforge.errors import ConfigError
 from synthforge.synth.base import Synthesizer
 from synthforge.synth.fixture import FixtureSynthesizer
-from synthforge.synth.mutate import MutationSynthesizer
+from synthforge.synth.perturb import PerturbSynthesizer
 from synthforge.synth.template import TemplateSynthesizer
 
 _FACTORIES: dict[str, Callable[..., Synthesizer]] = {}
@@ -40,4 +40,4 @@ def available() -> list[str]:
 
 register("template", TemplateSynthesizer)
 register("fixture", FixtureSynthesizer)
-register("mutate", MutationSynthesizer)
+register("perturb", PerturbSynthesizer)
