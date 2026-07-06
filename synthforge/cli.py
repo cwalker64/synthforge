@@ -14,6 +14,7 @@ from synthforge.loop import LoopConfig, solve_task
 from synthforge.report import render_json, render_markdown, render_text
 from synthforge.synth.registry import available, get_synthesizer
 from synthforge.tasks import example_suite_path, load_suite
+from synthforge.types import RunReport
 from synthforge.version import __version__
 
 
@@ -82,7 +83,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     return 0 if solved == len(reports) else 1
 
 
-def _render(reports: list, fmt: str) -> str:
+def _render(reports: list[RunReport], fmt: str) -> str:
     if fmt == "markdown":
         return render_markdown(reports)
     if fmt == "json":
