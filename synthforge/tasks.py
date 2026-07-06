@@ -7,13 +7,17 @@ well-typed before constructing a :class:`~synthforge.types.Task`.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from pathlib import Path
+from typing import Any, Mapping, Union
 
-from synthforge.errors import TaskError
+from synthforge.errors import SuiteLoadError, TaskError
 from synthforge.types import Task
 
 _REQUIRED = ("task_id", "prompt", "entry_point", "tests")
+
+PathLike = Union[str, Path]
 
 
 def task_from_dict(data: Mapping[str, Any]) -> Task:
@@ -58,3 +62,23 @@ class TaskSuite:
 
     def get(self, task_id: str) -> Task:
         return self._by_id[task_id]
+
+
+def load_suite(path: PathLike) -> TaskSuite:
+    """Load a task suite from a JSONL file (one task object per line)."""
+    path = Path(path)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:  # pragma: no cover - filesystem dependent
+        raise SuiteLoadError(f"cannot read task suite {path}: {exc}") from exc
+
+    tasks: list[Task] = []
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise SuiteLoadError(f"{path}:{lineno}: invalid JSON: {exc}") from exc
+        tasks.append(task_from_dict(payload))
+    if not tasks:
+        raise SuiteLoadError(f"{path}: no tasks found")
+    return TaskSuite(tasks)
