@@ -10,11 +10,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from synthforge._logging import get_logger
 from synthforge.eval.runner import best_result, evaluate
 from synthforge.repair.base import RepairContext, Repairer
 from synthforge.repair.rules import RuleRepairer
 from synthforge.synth.base import Synthesizer
 from synthforge.types import EvalResult, RepairStep, RunReport, Task
+
+_log = get_logger("loop")
 
 
 @dataclass
@@ -89,5 +92,12 @@ def _repair_once(
         )
     )
     if best.passed or best.pass_rate > current.pass_rate:
+        _log.debug(
+            "task %s: repair round %d improved %.2f -> %.2f",
+            task.task_id,
+            iteration,
+            current.pass_rate,
+            best.pass_rate,
+        )
         return best
     return None
