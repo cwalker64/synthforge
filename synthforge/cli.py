@@ -7,9 +7,11 @@ prints a report. With no suite argument it uses the small bundled example.
 from __future__ import annotations
 
 import argparse
+import sys
 from collections.abc import Sequence
 
 from synthforge.config import RunConfig, load_config
+from synthforge.errors import SynthForgeError
 from synthforge.loop import LoopConfig, solve_task
 from synthforge.report import render_json, render_markdown, render_text
 from synthforge.synth.registry import available, get_synthesizer
@@ -97,5 +99,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not getattr(args, "command", None):
         parser.print_help()
         return 0
-    result: int = args.func(args)
+    try:
+        result: int = args.func(args)
+    except SynthForgeError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     return result
