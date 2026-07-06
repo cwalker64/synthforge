@@ -19,6 +19,7 @@ import builtins
 import contextlib
 import json
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -62,8 +63,7 @@ def run_in_sandbox(
     try:
         out, err = proc.communicate(payload, timeout=timeout)
     except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.communicate()
+        _terminate(proc)
         return SandboxOutcome(
             outcomes=[_timeout_outcome(i) for i in range(len(tests))],
             timed_out=True,
@@ -95,6 +95,16 @@ def _timeout_outcome(index: int) -> dict[str, Any]:
 
 def _error_outcome(index: int, detail: str) -> dict[str, Any]:
     return {"index": index, "passed": False, "error": detail, "duration": 0.0}
+
+
+def _terminate(proc: subprocess.Popen[str]) -> None:
+    """Kill the whole child process group so runaway grandchildren die too."""
+    try:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    except (ProcessLookupError, PermissionError, OSError):
+        proc.kill()
+    with contextlib.suppress(subprocess.TimeoutExpired):
+        proc.communicate(timeout=5)
 
 
 def reliability_guard(max_memory_bytes: int | None = None) -> None:
