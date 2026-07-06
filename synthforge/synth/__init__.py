@@ -5,6 +5,6 @@ backends in this package are deterministic and offline, so the whole pipeline
 runs without network access or model weights.
 """
 
-from synthforge.synth.base import Synthesizer
+from synthforge.synth.base import AbstractSynthesizer, Synthesizer
 
-__all__ = ["Synthesizer"]
+__all__ = ["Synthesizer", "AbstractSynthesizer"]
