@@ -7,6 +7,8 @@ constant function, register it, and evaluate it.
 Run with:  python examples/custom_synthesizer/synth.py
 """
 
+from __future__ import annotations
+
 from synthforge.eval.runner import evaluate
 from synthforge.synth.registry import get_synthesizer, register
 from synthforge.types import Candidate, Task
