@@ -1,0 +1,3 @@
+{"task_id": "grand_total", "prompt": "Return the sum of a and b.", "entry_point": "grand_total", "signature": "def grand_total(a, b):", "tests": ["assert grand_total(3, 4) == 7", "assert grand_total(0, 0) == 0"]}
+{"task_id": "smallest", "prompt": "Return the minimum of a and b.", "entry_point": "smallest", "signature": "def smallest(a, b):", "tests": ["assert smallest(3, 5) == 3", "assert smallest(9, 2) == 2"]}
+{"task_id": "tail", "prompt": "Return the number of items in xs.", "entry_point": "tail", "signature": "def tail(xs):", "tests": ["assert tail([1, 2]) == 2", "assert tail([]) == 0"]}
