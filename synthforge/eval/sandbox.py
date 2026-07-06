@@ -16,19 +16,21 @@ adversarial code. Run genuinely untrusted models inside a container or VM.
 from __future__ import annotations
 
 import builtins
+import contextlib
 import json
 import os
 import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
 class SandboxOutcome:
     """Raw result of one sandboxed run, before mapping to domain types."""
 
-    outcomes: list[dict] = field(default_factory=list)
+    outcomes: list[dict[str, Any]] = field(default_factory=list)
     timed_out: bool = False
     duration: float = 0.0
     error: str | None = None
@@ -87,11 +89,11 @@ def run_in_sandbox(
     return SandboxOutcome(outcomes=list(parsed.get("outcomes", [])), duration=duration)
 
 
-def _timeout_outcome(index: int) -> dict:
+def _timeout_outcome(index: int) -> dict[str, Any]:
     return {"index": index, "passed": False, "error": "timed out", "duration": 0.0}
 
 
-def _error_outcome(index: int, detail: str) -> dict:
+def _error_outcome(index: int, detail: str) -> dict[str, Any]:
     return {"index": index, "passed": False, "error": detail, "duration": 0.0}
 
 
@@ -134,10 +136,8 @@ def _limit_memory(max_bytes: int) -> None:
 
 def _disable(module: object, attr: str) -> None:
     if hasattr(module, attr):
-        try:
+        with contextlib.suppress(AttributeError, TypeError):  # pragma: no cover
             setattr(module, attr, None)
-        except (AttributeError, TypeError):  # pragma: no cover
-            pass
 
 
 def _disable_module(module_name: str, attrs: tuple[str, ...]) -> None:
