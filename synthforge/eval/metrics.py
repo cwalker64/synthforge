@@ -9,6 +9,8 @@ never allocates the full binomial coefficients.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 
 def pass_at_k(num_samples: int, num_correct: int, k: int) -> float:
     """Unbiased estimate of pass@k.
@@ -35,3 +37,16 @@ def pass_at_k(num_samples: int, num_correct: int, k: int) -> float:
     for i in range(n - c + 1, n + 1):
         prod *= 1.0 - k / i
     return 1.0 - prod
+
+
+def mean_pass_at_k(per_task: Iterable[tuple[int, int]], k: int) -> float:
+    """Average pass@k over tasks.
+
+    ``per_task`` yields ``(num_samples, num_correct)`` pairs, one per task. The
+    result is the unweighted mean of each task's pass@k, which is the standard
+    way HumanEval-style scores are reported.
+    """
+    scores = [pass_at_k(n, c, k) for n, c in per_task]
+    if not scores:
+        return 0.0
+    return sum(scores) / len(scores)
