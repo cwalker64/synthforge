@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from synthforge.types import RunReport
+import json
+from typing import Any
+
+from synthforge.types import EvalResult, RunReport
 
 
 def render_text(report: RunReport) -> str:
@@ -20,3 +23,33 @@ def render_text(report: RunReport) -> str:
         if error:
             lines.append(f"  first error: {error}")
     return "\n".join(lines)
+
+
+def _result_to_dict(result: EvalResult) -> dict[str, Any]:
+    return {
+        "origin": result.candidate.origin,
+        "passed": result.passed,
+        "num_passed": result.num_passed,
+        "num_tests": result.num_tests,
+        "pass_rate": result.pass_rate,
+        "timed_out": result.timed_out,
+    }
+
+
+def report_to_dict(report: RunReport) -> dict[str, Any]:
+    """Convert a run report into JSON-serialisable primitives."""
+    best = report.best
+    return {
+        "task_id": report.task_id,
+        "solved": report.solved,
+        "num_attempts": len(report.attempts),
+        "num_repairs": len(report.repairs),
+        "best": _result_to_dict(best) if best is not None else None,
+        "attempts": [_result_to_dict(a) for a in report.attempts],
+    }
+
+
+def render_json(report: RunReport, *, indent: int | None = 2) -> str:
+    """Render a run report as a JSON document."""
+    return json.dumps(report_to_dict(report), indent=indent)
+
