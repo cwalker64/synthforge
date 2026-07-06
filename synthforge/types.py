@@ -8,7 +8,7 @@ evaluator and the repair loop without coupling those components together.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -25,9 +25,9 @@ class Task:
     prompt: str
     entry_point: str
     tests: tuple[str, ...]
-    signature: Optional[str] = None
+    signature: str | None = None
     setup: str = ""
-    reference: Optional[str] = None
+    reference: str | None = None
     hints: dict[str, Any] = field(default_factory=dict)
     timeout: float = 5.0
 
@@ -51,7 +51,7 @@ class TestOutcome:
 
     index: int
     passed: bool
-    error: Optional[str] = None
+    error: str | None = None
     duration: float = 0.0
 
 
@@ -83,7 +83,7 @@ class EvalResult:
             return 0.0
         return self.num_passed / self.num_tests
 
-    def first_error(self) -> Optional[str]:
+    def first_error(self) -> str | None:
         for outcome in self.outcomes:
             if not outcome.passed and outcome.error:
                 return outcome.error
@@ -115,7 +115,7 @@ class RunReport:
         return any(a.passed for a in self.attempts)
 
     @property
-    def best(self) -> Optional[EvalResult]:
+    def best(self) -> EvalResult | None:
         if not self.attempts:
             return None
         return max(self.attempts, key=lambda a: (a.passed, a.pass_rate))

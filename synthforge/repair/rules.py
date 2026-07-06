@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from synthforge.repair.base import RepairContext
 from synthforge.repair.operators import OPERATORS, RepairOperator

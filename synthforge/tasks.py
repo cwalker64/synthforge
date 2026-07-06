@@ -8,9 +8,10 @@ well-typed before constructing a :class:`~synthforge.types.Task`.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping, Union
+from typing import Any, Union
 
 from synthforge.errors import SuiteLoadError, TaskError
 from synthforge.types import Task
@@ -54,7 +55,7 @@ class TaskSuite:
     def __post_init__(self) -> None:
         self._by_id = {t.task_id: t for t in self.tasks}
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Task]:
         return iter(self.tasks)
 
     def __len__(self) -> int:
