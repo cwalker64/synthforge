@@ -20,6 +20,14 @@ class RepairContext:
     def error(self) -> str | None:
         return self.result.first_error()
 
+    @property
+    def failing_indices(self) -> list[int]:
+        return [o.index for o in self.result.outcomes if not o.passed]
+
+    @property
+    def timed_out(self) -> bool:
+        return self.result.timed_out
+
 
 @runtime_checkable
 class Repairer(Protocol):
