@@ -53,7 +53,7 @@ def _to_result(task: Task, candidate: Candidate, sandbox: SandboxOutcome) -> Eva
         TestOutcome(
             index=int(raw["index"]),
             passed=bool(raw["passed"]),
-            error=raw.get("error"),
+            error=_normalize_error(raw.get("error")),
             duration=float(raw.get("duration", 0.0)),
         )
         for raw in sandbox.outcomes
@@ -65,3 +65,16 @@ def _to_result(task: Task, candidate: Candidate, sandbox: SandboxOutcome) -> Eva
         timed_out=sandbox.timed_out,
         duration=sandbox.duration,
     )
+
+
+_MAX_ERROR_CHARS = 500
+
+
+def _normalize_error(error: object) -> str | None:
+    """Trim and bound an error string so reports stay tidy."""
+    if not error:
+        return None
+    text = str(error).strip()
+    if len(text) > _MAX_ERROR_CHARS:
+        text = text[: _MAX_ERROR_CHARS - 3] + "..."
+    return text or None
