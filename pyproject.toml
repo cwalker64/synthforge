@@ -27,3 +27,14 @@ ignore = ["B008"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["synthforge"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+files = ["synthforge"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
