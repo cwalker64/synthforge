@@ -7,14 +7,24 @@ from typing import Iterable, Optional
 from synthforge.eval.sandbox import SandboxOutcome, run_in_sandbox
 from synthforge.types import Candidate, EvalResult, Task, TestOutcome
 
+# Prepended to every candidate so runs are deterministic and cannot block on
+# interactive input. Kept tiny on purpose - the real isolation is the sandbox.
+_HARNESS_PREAMBLE = (
+    "import random as _sf_random\n"
+    "_sf_random.seed(0)\n"
+    "def input(*_a, **_k):\n"
+    "    raise RuntimeError('input() is disabled during evaluation')\n"
+)
+
 
 def evaluate(task: Task, candidate: Candidate, *, timeout: Optional[float] = None) -> EvalResult:
     """Run ``candidate`` against every test in ``task`` and score it."""
     limit = task.timeout if timeout is None else timeout
+    setup = f"{_HARNESS_PREAMBLE}{task.setup}" if task.setup else _HARNESS_PREAMBLE
     sandbox = run_in_sandbox(
         candidate.source,
         list(task.tests),
-        setup=task.setup,
+        setup=setup,
         timeout=limit,
     )
     return _to_result(task, candidate, sandbox)
