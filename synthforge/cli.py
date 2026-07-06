@@ -12,7 +12,7 @@ from collections.abc import Sequence
 from synthforge.config import RunConfig, load_config
 from synthforge.loop import LoopConfig, solve_task
 from synthforge.report import render_json, render_markdown, render_text
-from synthforge.synth.registry import get_synthesizer
+from synthforge.synth.registry import available, get_synthesizer
 from synthforge.tasks import example_suite_path, load_suite
 from synthforge.version import __version__
 
@@ -38,7 +38,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.set_defaults(func=_cmd_run)
 
+    synths = sub.add_parser("synths", help="list available synthesizers")
+    synths.set_defaults(func=_cmd_synths)
+
     return parser
+
+
+def _cmd_synths(args: argparse.Namespace) -> int:
+    for name in available():
+        print(name)
+    return 0
 
 
 def _resolve_config(args: argparse.Namespace) -> RunConfig:
