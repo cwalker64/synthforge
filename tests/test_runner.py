@@ -45,3 +45,17 @@ def test_best_result_prefers_solved() -> None:
 
 def test_best_result_empty() -> None:
     assert best_result([]) is None
+
+
+def test_timeout_marks_result_failed() -> None:
+    task = Task(
+        task_id="spin",
+        prompt="loops forever",
+        entry_point="spin",
+        tests=("spin()",),
+        timeout=1.0,
+    )
+    result = evaluate(task, Candidate("def spin():\n    while True:\n        pass\n"))
+    assert result.timed_out
+    assert not result.passed
+
