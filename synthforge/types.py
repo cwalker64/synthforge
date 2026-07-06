@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
-@dataclass
+@dataclass(frozen=True)
 class Task:
     """A single program-synthesis problem.
 
@@ -36,7 +36,7 @@ class Task:
         return len(self.tests)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Candidate:
     """A proposed solution to a :class:`Task`."""
 
@@ -45,7 +45,7 @@ class Candidate:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-@dataclass
+@dataclass(frozen=True)
 class TestOutcome:
     """Result of running one test snippet against a candidate."""
 
@@ -55,7 +55,7 @@ class TestOutcome:
     duration: float = 0.0
 
 
-@dataclass
+@dataclass(frozen=True)
 class EvalResult:
     """Outcome of evaluating a candidate against a whole task."""
 
@@ -90,7 +90,7 @@ class EvalResult:
         return None
 
 
-@dataclass
+@dataclass(frozen=True)
 class RepairStep:
     """One iteration of the repair loop."""
 
