@@ -85,3 +85,13 @@ def load_suite(path: PathLike) -> TaskSuite:
     if not tasks:
         raise SuiteLoadError(f"{path}: no tasks found")
     return TaskSuite(tasks)
+
+
+def example_suite_path() -> Path:
+    """Return the path to the task suite bundled with the package."""
+    return Path(__file__).with_name("data") / "example_suite.jsonl"
+
+
+def load_example_suite() -> TaskSuite:
+    """Load the small example suite shipped inside the package."""
+    return load_suite(example_suite_path())
