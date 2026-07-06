@@ -42,7 +42,7 @@ ignore = ["B008"]
 known-first-party = ["synthforge"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 strict = true
 warn_unused_ignores = true
 warn_redundant_casts = true
